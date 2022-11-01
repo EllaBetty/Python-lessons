@@ -1,0 +1,539 @@
+
+To work with Python/CGI we created an AWS instance - a virtual machine.
+
+This instance runs Ubuntu Linux and can be basically used in the same manner as normal computer - 
+but has no GUI, only CLI.
+
+The IP address of the VM is 18.134.74.225
+
+The domain name of the VM is ec2-18-134-74-225.eu-west-2.compute.amazonaws.com
+
+To connect to VM through SSH (Secure Shell Protocol) from 
+UNIX compatible terminal (Linux, MaOS) we use
+
+ssh -i "Asher.pem" ubuntu@ec2-18-134-74-225.eu-west-2.compute.amazonaws.com
+
+ubuntu is the default user name
+
+"Asher.pem" is the name of the security key file used in SSH protocol
+
+As soon as we are connected to VM through SSH, we can use normal UNIX commands, e.g.
+
+ls     list of files in this directory
+
+ls -l  list files "long", i.e. detailed output
+
+OUR default directory is /home/ubuntu
+
+It becomes the default directory when we log in as in the above.
+
+Python/CGI scripts are located in a special directory at
+
+/var/www/cgi-bin/
+
+HTML files that we need must be placed into
+
+/var/www/html/
+
+To upload a file from a local computer to VM we need an SFTP client software, like Filezilla
+https://filezilla-project.org/download.php?type=client
+
+To connect to VM using Filezilla or similar client, we need
+
+Asher.ppk - a variant of security key.
+
+Once we upload a file from local computer to VM, it can be found in 
+
+/home/ubuntu/
+
+type ls -l and you will see the file, e.g.
+
+-rw-rw-r-- 1 ubuntu ubuntu  109 Mar 21 11:57 text.txt
+
+For security reasons, we can not upload a file using Filezilla
+to /var/www/cgi-bin/ directly
+
+Once we have the file in /home/ubuntu/, 
+we can move it to the target using
+
+sudo mv leapyear.py /var/www/cgi-bin/
+
+sudo - Super User DO; execute a command with superuser privileges.
+
+The last step: make .py file executable
+
+sudo chmod 755 /var/www/cgi-bin/leapyear.py
+
+You can then check if the file is in place and has necessary attributes
+
+ls -l /var/www/cgi-bin/
+
+A possible responce is 
+
+-rwxr-xr-x 1 root   root   217 Mar 13 15:54 example2.py
+-rwxr-xr-x 1 root   root   323 Mar 13 15:26 hello.py
+-rwxr-xr-x 1 root   root   502 Mar 13 15:58 hello_get.py
+-rwxr-xr-x 1 ubuntu ubuntu 666 Mar 17 14:46 leapyear.py
+-rwxr-xr-x 1 ubuntu ubuntu 395 Mar 21 12:01 readfile.py
+-rwxr-xr-x 1 ubuntu ubuntu 445 Mar 21 12:07 writefile.py
+
+
+Now we an run Python/CGI in any browser like
+
+http://18.134.74.225/cgi-bin/leapyear.py?year=2022
+
+If our script requires any HTML file, it must be placed into /var/www/html/
+
+
+
+TO BE CONTINUED...
+
+ERROR in CGI SCRIPT
+
+If your script ends with an error, you will see a message about that in your browser window.
+
+Typically, you will not have any diagnostics.
+
+Internal Server Error
+
+What happened?
+
+To find out, return to your terminal and look into Apache error log
+
+cat /var/log/apache2/error.log
+
+At the end of the file there will be some explanation...
+
+
+ACCESS RIGHTS IN UNIX
+
+https://www.tutorialspoint.com/unix/unix-file-permission.htm
+
+-rw-rw-r-- 1 ubuntu ubuntu 109 Mar 21 11:57 text.txt
+
+- rw-   rw-    r--
+  YOU   GROUP  OTHERS
+
+  YOU - Read and Write
+  GROUP - same
+  OTHERS - read only
+
+  664
+
+
+
+rw-
+110 == 6
+
+rwx
+111 == 7
+
+777 - everyone can do anything!
+
+To change mode of access we use
+
+chmod 660 text.txt
+
+WRITING INTO FILES FROM CGI
+
+The main problem here is the access right.
+
+CGI script is run from Apache web server. UNIX has special
+user named www-data, who runs Apache. This user has no right to use
+other directories, e.g. /home/ubuntu/
+
+Ho to bypass?
+
+Create a directory named 'files' or whatever name you like inside /home/ubuntu/
+
+Make this directory open to all users... (This is the simplest way, but not the best one!)
+
+mkdir files
+
+Then, change mode of access:
+
+chmod 777 files
+
+Check the result:
+
+drwxrwxrwx 2 ubuntu ubuntu 4096 Mar 23 14:34 files
+
+
+Now, from your Python script open file to write like
+
+/home/ubuntu/files/somefilename.txt
+
+This should work!
+
+TO BE CONTINUED!
+
+
+WORKING WITH GITHUB
+
+To download the entire repository into a Linux directory, we use
+
+'git', a Linux program that should be available by default
+
+Like this:
+
+git clone https://github.com/AndrewCRMartin/biocomp2 AndrewMartin
+
+This will create a local folder named AndrewMartin
+
+drwxrwxr-x 6 ubuntu ubuntu 4096 Mar 24 08:03 AndrewMartin
+
+ubuntu@ip-172-31-24-168:~/AndrewMartin$ ls -l
+-rw-rw-r-- 1 ubuntu ubuntu 3182 Mar 24 08:03 README.md
+drwxrwxr-x 5 ubuntu ubuntu 4096 Mar 24 08:03 cgi-biocomp2
+-rwxrwxr-x 1 ubuntu ubuntu  280 Mar 24 08:03 config_bbk.sh
+-rwxrwxr-x 1 ubuntu ubuntu  226 Mar 24 08:03 config_bioinf.sh
+-rwxrwxr-x 1 ubuntu ubuntu  224 Mar 24 08:03 config_linux.sh
+drwxrwxr-x 3 ubuntu ubuntu 4096 Mar 24 08:03 createdb
+-rw-rw-r-- 1 ubuntu ubuntu   44 Mar 24 08:03 htaccess
+drwxrwxr-x 3 ubuntu ubuntu 4096 Mar 24 08:03 html
+-rwxrwxr-x 1 ubuntu ubuntu 1898 Mar 24 08:03 install.sh
+
+
+-------------------------------
+
+UPLOAD TO GITHUB
+
+If Git is not installed on your Linux
+
+sudo apt-get install git
+
+Configure GitHub
+
+git config --global user.name "user_name"
+git config --global user.email "email_id"
+
+You should have an account with GitHub
+
+Initialize a repository on your Linux machine
+
+git init SecondRepo
+
+This will create a directory.
+drwxrwxr-x 3 ubuntu ubuntu 4096 Mar 26 08:19 SecondRepo
+Then
+
+cd SecondRepo
+
+Create and or move files here, that you want to upload to GitHub
+
+git add .
+
+This will add all files and folders inside SecondRepo
+
+Commit (prepare) the upload
+
+git commit -m "This is my second commit"
+
+Create a repository on GitHub with the same name
+e.g. SecondRepo
+
+Add origin
+
+git remote add origin https://github.com/grivis/SecondRepo.git
+
+Push the files into GitHub
+
+git push https://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@github.com/grivis/SecondRepo.git
+
+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 is your GitHub personal token
+You can get it if you have a GitHub account
+
+Settings --> Developer Settings --> Personal access tokens. 
+
+After 'push' your files should be there!!
+
+ADDING NEW AND EDITED FILES
+
+git add --all
+
+This will add new files and files changed since the last commit
+
+git status
+
+
+git commit -m '<commit_message>'
+
+git push https://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@github.com/grivis/SecondRepo.git
+
+You will see changes in your GitHub repository
+
+
+
+https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+https://www.howtoforge.com/tutorial/install-git-and-github-on-ubuntu/
+https://support.atlassian.com/bitbucket-cloud/docs/add-edit-and-commit-to-source-files/
+
+https://mirrors.edge.kernel.org/pub/software/scm/git/docs/
+
+TO BE CONTINUED...
+
+http://18.134.74.225/biocomp2demo/
+
+http the name of the protocol
+https HTTP secure
+
+18.134.74.225 - server name or IP address
+
+/biocomp2demo/ - your target resourse location at the server
+
+https://www.bbc.com/news/live/world-europe-60856533
+
+www.bbc.com
+
+news/live/world-europe-60856533
+
+Apache -- software for web access
+
+index.html  - default name for the main HTNL file in this folder
+
+http://18.134.74.225/biocomp2demo/
+
+TO BE CONTINUED...
+
+ubuntu@ip-172-31-24-168:~$ tree /var/www/
+/var/www/
+├── cgi-bin
+│   ├── cgi-biocomp2
+│   │   ├── README.md
+│   │   ├── bl
+│   │   │   ├── README.md
+│   │   │   ├── blapi_dummy.py
+│   │   │   └── docs
+│   │   │       └── README.md
+│   │   ├── cgi
+│   │   │   ├── README.md
+│   │   │   ├── docs
+│   │   │   │   └── README.md
+│   │   │   ├── htmlutils.py
+│   │   │   ├── listall.cgi
+│   │   │   └── search.cgi
+│   │   ├── config.py
+│   │   ├── config_bioinf.py
+│   │   ├── config_demo.py
+│   │   └── db
+│   │       ├── README.md
+│   │       ├── dbapi_dummy.py
+│   │       └── docs
+│   │           └── README.md
+│   ├── example2.py
+│   ├── hello.py
+│   ├── hello_get.py
+│   ├── index.py
+│   ├── leapyear.py
+│   ├── readfile.py
+│   ├── word_letter.py
+│   └── writefile.py
+└── html
+    ├── biocomp2demo
+    │   ├── css
+    │   │   └── biocomp2.css
+    │   └── index.html
+    ├── index.html
+    ├── leapyear.html
+    ├── myform.html
+    └── word_letter.html
+
+1. In browser we navigate to http://18.134.74.225/biocomp2demo/
+
+index.html is found there. index.html will redirect the browser to
+/cgi-bin/index.py
+
+2. index.py will update the system path with
+"./cgi-biocomp2"
+
+Python will look for unknown names in the path, and the first destination is "./cgi-biocomp2"
+There it will find "config" and will import the module
+
+3. Then HTML will be output to the browser
+
+NEXT STEPS...
+
+4. Now we click at http://18.134.74.225/cgi-bin/cgi-biocomp2/cgi/listall.cgi
+
+This will run listall.cgi (This is a Python file, but having .cgi extension)
+
+import blapi      # Import the Business Logic API
+import htmlutils  # Import HTML utilities
+import config     # Import configuration information (e.g. URLs)
+
+entries = blapi.getAllEntries()
+
+blapi will be loaded and getAllEntries() will be activated
+
+This will activate dbapi.getAllEntries()
+
+And this will return return(['AB000123', 'AB000321', 'AC001564'])
+
+TO BE CONTINUED...
+
+
+
+WHICH LINUX I AM RUNNING ?
+
+uname --kernel-name --kernel-release --machine
+
+uname -srm
+
+cat /etc/os-release
+
+IS APACHE RUNNING?
+
+$ sudo systemctl status apache2   #Debian/Ubuntu 
+# systemctl status httpd    #RHEL/CentOS/Fedora 
+
+
+INSTALL POSTGRESQL AND MAKE IT WORKING
+
+sudo apt install postgresql postgresql-contrib
+
+Check if it is running...
+
+sudo su - postgres
+psql
+\conninfo
+
+Reset postgres user password
+
+sudo -u postgres psql
+ALTER USER postgres PASSWORD 'newpassword';
+
+Make PostgreSQL listen to all available IP addresses and accept connections from outside:
+
+Change a line in postgresql.conf
+
+listen_addresses = '*'
+
+Add a line to pg_hba.conf
+
+host all all 0.0.0.0/0 md5
+
+Update security group in AWS
+
+Open port 5432
+
+Now you can connect to your PostgreSQL server from a remote application, i.e. pgadmin4
+
+Now you can upload a sample database to your remote server using pgadmin
+
+Upload this file to AWS instance and check, if it is working:
+
+import psycopg2
+from psycopg2 import sql
+
+connect_str = "dbname='dvdrental' user='postgres' host='localhost' password='12345'" 
+conn = psycopg2.connect(connect_str)
+cursor = conn.cursor()
+stmt = "SELECT customer_id, first_name, last_name, email FROM customer WHERE customer_id between %s and %s"
+cursor.execute(stmt, (10,20))
+
+for row in cursor:
+    mydict = {}
+    mydict["customer_id"] = row[0]
+    mydict["first_name"] = row[1]
+    mydict["last_name"] = row[2]
+    mydict["email"] = row[3]
+
+    print(mydict)
+
+
+If psycopg2 is not installed on your AWS instance, install it
+
+sudo apt-get install libpq-dev
+sudo apt-get install python3-Psycopg2
+
+You may also install psycopg2 with pip3
+
+sudo apt install python3-pip
+
+sudo pip3 install Psycopg2
+
+TO BE CONTINUED...
+
+New Git PAT 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
+
+
+WORKING WITH MARIADB
+
+https://computingforgeeks.com/how-to-install-mariadb-on-ubuntu-lts-linux/
+https://varhanik.net/check-mysql-installed/
+https://www.digitalocean.com/community/tutorials/how-to-reset-your-mysql-or-mariadb-root-password
+https://stackoverflow.com/questions/39281594/error-1698-28000-access-denied-for-user-rootlocalhost
+
+
+
+Server:         MariaDB
+Server version:     10.1.48-MariaDB-0ubuntu0.18.04.1 Ubuntu 18.04
+
+root: 12345
+
+>sudo mysql -u root -p
+
+MariaDB [(none)]> use biocomp2;
+
+MariaDB [biocomp2]> select * from dummy;
++-----------+-----------+------------+---------------------------+------------------------------------------+---------------+
+| accession | gene_name | location   | protein                   | full_seq                                 | translation   |
++-----------+-----------+------------+---------------------------+------------------------------------------+---------------+
+| AB012624  | FLI1      | 11q24-11p1 | ERGB transcription factor | cctcagttacctcagggaaagtaagtgccgcccaagtacc | LSYLRESSLLAYN |
+| AB012625  | FLI2      | 11q24      | ERGB transcription factor | agagcaacggccccagccaggtacctgcccaggatatgta | EQRPQPDPYQILG |
+| BC123456  | ABC3      | 11q23-11p1 | this is a test1234444444  | agagcaacggccccagccaggtacctgcccaggatatgta | EQRPQPDPYQILG |
++-----------+-----------+------------+---------------------------+------------------------------------------+---------------+
+3 rows in set (0.00 sec)
+
+Install pymysql:
+
+pip3 install pymysql
+
+import pymysql
+ 
+# Connect to the database
+connection = pymysql.connect(host='localhost',
+user='root',
+password='12345',
+db='biocomp2',
+charset='utf8mb4')
+
+MariaDB [biocomp2]> exit
+Bye
+
+ubuntu@ip-172-31-24-168:~$ systemctl status mariadb
+● mariadb.service - MariaDB 10.1.48 database server
+   Loaded: loaded (/lib/systemd/system/mariadb.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sun 2022-04-03 09:46:59 UTC; 29min ago
+
+ubuntu@ip-172-31-24-168:~$ systemctl status postgresql
+● postgresql.service - PostgreSQL RDBMS
+   Loaded: loaded (/lib/systemd/system/postgresql.service; enabled; vendor preset: enabled)
+   Active: active (exited) since Sun 2022-04-03 09:47:01 UTC; 30min ago
+
+
+TO BE CONTINUED...
+
+
+
+ubuntu@ip-172-31-24-168:/usr/bin$ python3 -c "import pymysql as _; print(_.__path__)"
+['/home/ubuntu/.local/lib/python3.6/site-packages/pymysql']
+
+sudo apt-get install python3-pymysql
+
+
+
+
+
+install.sh basically performs
+
+ubuntu -----> /var/www/
+
+
+
+
+
+
+
+
+
