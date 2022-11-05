@@ -1,0 +1,149 @@
+https://www.tutorialspoint.com/python/python_cgi_programming.htm
+
+It is possible to set up the HTTP server so that whenever a file in a certain directory is requested that file is not sent back; instead it is executed as a program, and whatever that program outputs is sent back for your browser to display. This function is called the Common Gateway Interface or CGI and the programs are called CGI scripts. These CGI programs can be a Python Script, PERL Script, Shell Script, C or C++ program, etc.
+
+ssh -i Paramiko.pem ubuntu@3.68.88.209
+
+Update and upgrade everything before installation
+
+
+1. Install Apache on your virtual machine, e.g. AWS
+
+sudo apt install apache2
+
+sudo systemctl status apache2
+
+apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; vendor preset: enabled)
+     Active: active (running) since Tue 2022-11-01 07:01:06 UTC; 1min 5s ago
+       Docs: https://httpd.apache.org/docs/2.4/
+   Main PID: 9828 (apache2)
+      Tasks: 55 (limit: 1143)
+     Memory: 5.0M
+     CGroup: /system.slice/apache2.service
+             ├─9828 /usr/sbin/apache2 -k start
+             ├─9830 /usr/sbin/apache2 -k start
+             └─9831 /usr/sbin/apache2 -k start
+
+
+Now the 3.68.88.209 instance becomes a web server
+
+Navigate to http://3.68.88.209/ from ANY browser
+
+BUT DON'T FORGET to update security group at AWS.
+
+Port 80 must be opened for your AWS instance
+
+sudo service apache2 restart
+
+ls -l /var/www/html
+
+-rw-r--r-- 1 root root 10918 Nov  1 07:01 index.html
+
+
+sudo nano /etc/apache2/apache2.conf
+
+ServerName 3.68.88.209 
+ScriptAlias /cgi-bin/ /var/www/cgi-bin/
+Options +ExecCGI
+AddHandler cgi-script .cgi .pl .py
+
+
+/etc/apache2/conf-available/serve-cgi-bin.conf
+
+<IfModule mod_alias.c>
+        <IfModule mod_cgi.c>
+                Define ENABLE_USR_LIB_CGI_BIN
+        </IfModule>
+
+        <IfModule mod_cgid.c>
+                Define ENABLE_USR_LIB_CGI_BIN
+        </IfModule>
+
+        <IfDefine ENABLE_USR_LIB_CGI_BIN>
+                #ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+                #<Directory "/usr/lib/cgi-bin">
+                #       AllowOverride None
+                #       Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+                #       Require all granted
+                #</Directory>
+                ScriptAlias /cgi-bin/ /var/www/cgi-bin/
+            <Directory "/var/www/cgi-bin/">
+                AllowOverride None
+                Options +ExecCGI
+            </Directory>
+        </IfDefine>
+</IfModule>
+
+
+Enable CGI module
+
+sudo a2enmod cgi  ###!!!!!!!!!!!!!!!!!
+
+
+# Make sure that Python is installed on your AWS instance
+
+which python3
+
+/usr/bin/python3
+
+
+Create a test PYTHON CGI script
+
+sudo nano /var/www/cgi-bin/hello.py
+
+#!/usr/bin/python3
+import cgi
+import cgitb
+cgitb.enable()
+
+print ("Content-type:text/html\r\n\r\n")
+print ('<html>')
+print ('<head>')
+print ('<title>Hello World - First CGI Program</title>')
+print ('</head>')
+print ('<body>')
+print ('<h2>Hello World! This is my first CGI program</h2>')
+print ('</body>')
+print ('</html>')
+
+## Make this file executable
+
+http://3.68.88.209/cgi-bin/hello.py
+
+NEXT STEP: How to pass parameters...
+
+Passing parameters through and HTML form
+
+leapyear.html --> leapyear.py
+
+/var/www/html/leapyear.html  http://3.68.88.209/leapyear.html
+
+<html>
+<body>
+
+<form action = "/cgi-bin/leapyear.py" method = "get">
+Enter Year: <input type = "text" name = "year">  <br />
+<input type = "submit" value = "Submit" />
+</form>
+
+</body>
+</html>
+
+When user submits the year value, the HTML for will call "/cgi-bin/leapyear.py"
+
+/var/www/cgi-bin/leapyear.py --> http://3.68.88.209/cgi-bin/leapyear.py?year=2020
+
+http://3.68.88.209/cgi-bin/leapyear.py?year=1966
+
+http://3.68.88.209/cgi-bin/leapyear.py?month=1966 -- ERROR
+
+http://3.68.88.209/cgi-bin/students.py?name=Alice&age=22&score=4.5
+
+
+
+
+
+
+
+
