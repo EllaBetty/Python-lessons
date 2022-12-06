@@ -1,0 +1,61 @@
+140  cat /etc/os-release
+  141  which python
+  142  which python3
+  143  python3 --version
+  144  pip
+  145  wget https://bootstrap.pypa.io/get-pip.py
+  146  ls -ltr
+  147  sudo python3 get-pip.py 
+  148  pip --version
+  149  sudo pip install virtualenv
+  150  virtualenv --version
+  151  mkdir myproject
+  152  tree
+  153  cd myproject/
+  154  ls -altr
+  155  virtualenv venv -p python3
+  156  ls -altr
+  157  tree
+  158  which python
+  159  which python3
+  160  source venv/bin/activate
+  161  which python3
+  162  python
+  163  deactivate
+  164  which python
+  165  which python3
+  166  source venv/bin/activate
+  167  pip install django
+  168  django --version
+  169  which django
+  170  ls -ltr
+  171  django-admin startproject myproject
+  172  ls -ltr
+  173  cd myproject/
+  174  tree
+  175  ls -ltr
+  176  python manage.py runserver localhost:8000
+  177  python manage.py runserver 0.0.0.0:8000
+  178  cd ~
+  179  ls -altr
+  180  ca .local/
+  181  cd .local/
+  182  ls -ltr
+  183  find -w 'allowed hosts'
+  184  find  'allowed hosts'
+  185  find --help
+  186  ls -al /etc
+  187  pwd
+  188  nano hosts.allow
+  189  ls -ltr
+  190  cat /etc/hosts.allow
+  191  sudo nano /etc/hosts.allow
+  192  cd ~/myproject/myproject/
+  193  ls -ltr
+  194  python manage.py runserver 0.0.0.0:8000
+  195  tree
+  196  nano myproject/settings.py 
+  197  python manage.py runserver 0.0.0.0:8000
+  198  nano myproject/settings.py 
+  199  python manage.py runserver 0.0.0.0:8000
+  200  history
