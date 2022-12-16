@@ -1,0 +1,17 @@
+Since Django 2.0 the ForeignKey field requires two positional arguments:
+
+the model to map to
+the on_delete argument
+categorie = models.ForeignKey('Categorie', on_delete=models.PROTECT)
+Here are some methods can used in on_delete
+
+CASCADE
+Cascade deletes. Django emulates the behavior of the SQL constraint ON DELETE CASCADE and also deletes the object containing the ForeignKey
+
+PROTECT
+Prevent deletion of the referenced object by raising ProtectedError, a subclass of django.db.IntegrityError.
+
+DO_NOTHING
+Take no action. If your database backend enforces referential integrity, this will cause an IntegrityError unless you manually add an SQL ON DELETE constraint to the database field.
+
+you can find more about on_delete by reading the documentation.

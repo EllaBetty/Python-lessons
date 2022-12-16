@@ -1,0 +1,8 @@
+
+UBUNTU SQLITE
+
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-sqlite-on-ubuntu-20-04
+
+https://www.javatpoint.com/sqlite-commands
+
+https://www.sqlitetutorial.net/sqlite-show-tables/
