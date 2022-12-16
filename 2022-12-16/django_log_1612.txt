@@ -1,0 +1,36 @@
+
+python manage.py makemigrations
+python manage.py sqlmigrate boards 0001
+python manage.py migrate
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ ls -ltr
+total 180
+-rwxrwxr-x 1 ubuntu ubuntu    665 Dec  6 11:31 manage.py
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 13 11:06 venv
+drwxrwxr-x 3 ubuntu ubuntu   4096 Dec 13 11:41 myproject
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 16 04:53 boards
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 04:54 db.sqlite3  ### No longer empty!!
+
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-sqlite-on-ubuntu-20-04
+
+sudo apt update
+
+sudo apt install sqlite3
+
+sqlite3 --version
+
+sqlite3 db.sqlite3
+
+.tables will show all tables available
+
+Doing some things manually
+
+python manage.py shell
+
+from boards.models import Board
+
+board = Board(name='Django', description='This is a board about Django.')
+
+board.save()
+
+from boards.models import Board
