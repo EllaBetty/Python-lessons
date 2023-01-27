@@ -1,0 +1,169 @@
+
+New Virtual Machine at AWS
+
+3.68.112.65
+172.31.11.178
+
+ec2-3-68-112-65.eu-central-1.compute.amazonaws.com
+
+ssh -i Paramiko.pem ubuntu@3.68.112.65
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ ls -ltr
+total 344
+-rwxrwxr-x 1 ubuntu ubuntu    665 Dec  6 11:31 manage.py
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 13 11:06 venv
+drwxrwxr-x 3 ubuntu ubuntu   4096 Dec 13 11:41 myproject
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 06:53 db.sqlite3.backup
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 07:19 db.sqlite3
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 16 07:23 boards
+
+http://ec2-3-68-112-65.eu-central-1.compute.amazonaws.com:8000/newhome/
+
+sqlite3 --version
+
+
+Views, Templates, and Static Files
+
+
+from django.http import HttpResponse
+from models import Board
+
+def home(request):
+    boards = Board.objects.all()
+    boards_names = list()
+
+    for board in boards:
+        boards_names.append(board.name)
+
+    response_html = '<br>'.join(boards_names)
+
+    return HttpResponse(response_html)
+
+New URL - list
+
+myproject/urls.py
+
+from django.contrib import admin
+from django.urls import path
+from django.urls import re_path
+from boards import views
+
+
+urlpatterns = [
+   path('', views.emptypath, name="emptypath"),
+   path('newhome/', views.newhome, name='newhome'),
+   path('oldhome/', views.home, name='home'),
+   path('admin/', admin.site.urls),
+   path('list/', views.listboards, name='listboards'),
+   ]
+
+
+boards/views.py
+
+from django.http import HttpResponse
+from boards.models import Board
+
+def home(request):
+    return HttpResponse("Hello, this is our first Application!")
+def newhome(request):
+    return HttpResponse("And this is another page of ours: Happy NEW Rabbit Year!")
+
+def emptypath(request):
+    return HttpResponse("This function handles EMPTY Path")
+
+def listboards(request):
+    boards = Board.objects.all()
+    boards_names = list()
+
+    for board in boards:
+        boards_names.append(board.name)
+
+    response_html = '<br>'.join(boards_names)
+
+    return HttpResponse(response_html)
+
+source venv/bin/activate
+python manage.py runserver 0.0.0.0:8000
+
+
+Template Engine Setup
+
+(venv) ubuntu@ip-172-31-11-178:~/myproject/myproject$ mkdir templates
+(venv) ubuntu@ip-172-31-11-178:~/myproject/myproject$ ls -ltr
+total 348
+-rwxrwxr-x 1 ubuntu ubuntu    665 Dec  6 11:31 manage.py
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 13 11:06 venv
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 06:53 db.sqlite3.backup
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 07:19 db.sqlite3
+drwxrwxr-x 3 ubuntu ubuntu   4096 Jan 27 11:13 myproject
+drwxrwxr-x 4 ubuntu ubuntu   4096 Jan 27 11:24 boards
+drwxrwxr-x 2 ubuntu ubuntu   4096 Jan 27 11:31 templates
+
+
+templates/listboards.html
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Boards</title>
+  </head>
+  <body>
+    <h1>Boards</h1>
+
+    {% for board in boards %}
+      {{ board.name }} <br>
+    {% endfor %}
+
+  </body>
+</html>
+
+https://jinja.palletsprojects.com/en/3.1.x/
+
+nano myproject/settings.py
+
+'DIRS': [os.path.join(BASE_DIR, 'templates')],
+
+Modify boards.views
+
+from django.shortcuts import render
+
+return render(request, 'listboards.html', {'boards': boards})
+
+ Improve the HTML template to use a table instead:
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Boards</title>
+  </head>
+  <body>
+    <h1>Boards</h1>
+
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Board</th>
+          <th>Posts</th>
+          <th>Topics</th>
+          <th>Last Post</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for board in boards %}
+          <tr>
+            <td>
+              {{ board.name }}<br>
+              <small style="color: #888">{{ board.description }}</small>
+            </td>
+            <td>0</td>
+            <td>0</td>
+            <td></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>
