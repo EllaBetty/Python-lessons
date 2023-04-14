@@ -1,0 +1,1502 @@
+
+New Virtual Machine at AWS
+
+3.68.112.65
+172.31.11.178
+
+ec2-3-68-112-65.eu-central-1.compute.amazonaws.com
+
+ssh -i Paramiko.pem ubuntu@3.68.112.65
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ ls -ltr
+total 344
+-rwxrwxr-x 1 ubuntu ubuntu    665 Dec  6 11:31 manage.py
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 13 11:06 venv
+drwxrwxr-x 3 ubuntu ubuntu   4096 Dec 13 11:41 myproject
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 06:53 db.sqlite3.backup
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 07:19 db.sqlite3
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 16 07:23 boards
+
+http://ec2-3-68-112-65.eu-central-1.compute.amazonaws.com:8000/newhome/
+
+sqlite3 --version
+
+
+Views, Templates, and Static Files
+
+
+from django.http import HttpResponse
+from models import Board
+
+def home(request):
+    boards = Board.objects.all()
+    boards_names = list()
+
+    for board in boards:
+        boards_names.append(board.name)
+
+    response_html = '<br>'.join(boards_names)
+
+    return HttpResponse(response_html)
+
+New URL - list
+
+myproject/urls.py
+
+from django.contrib import admin
+from django.urls import path
+from django.urls import re_path
+from boards import views
+
+
+urlpatterns = [
+   path('', views.emptypath, name="emptypath"),
+   path('newhome/', views.newhome, name='newhome'),
+   path('oldhome/', views.home, name='home'),
+   path('admin/', admin.site.urls),
+   path('list/', views.listboards, name='listboards'),
+   ]
+
+
+boards/views.py
+
+from django.http import HttpResponse
+from boards.models import Board
+
+def home(request):
+    return HttpResponse("Hello, this is our first Application!")
+def newhome(request):
+    return HttpResponse("And this is another page of ours: Happy NEW Rabbit Year!")
+
+def emptypath(request):
+    return HttpResponse("This function handles EMPTY Path")
+
+def listboards(request):
+    boards = Board.objects.all()
+    boards_names = list()
+
+    for board in boards:
+        boards_names.append(board.name)
+
+    response_html = '<br>'.join(boards_names)
+
+    return HttpResponse(response_html)
+
+source venv/bin/activate
+python manage.py runserver 0.0.0.0:8000
+
+
+Template Engine Setup
+
+(venv) ubuntu@ip-172-31-11-178:~/myproject/myproject$ mkdir templates
+(venv) ubuntu@ip-172-31-11-178:~/myproject/myproject$ ls -ltr
+total 348
+-rwxrwxr-x 1 ubuntu ubuntu    665 Dec  6 11:31 manage.py
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 13 11:06 venv
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 06:53 db.sqlite3.backup
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 07:19 db.sqlite3
+drwxrwxr-x 3 ubuntu ubuntu   4096 Jan 27 11:13 myproject
+drwxrwxr-x 4 ubuntu ubuntu   4096 Jan 27 11:24 boards
+drwxrwxr-x 2 ubuntu ubuntu   4096 Jan 27 11:31 templates
+
+
+templates/listboards.html
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Boards</title>
+  </head>
+  <body>
+    <h1>Boards</h1>
+
+    {% for board in boards %}
+      {{ board.name }} <br>
+    {% endfor %}
+
+  </body>
+</html>
+
+https://jinja.palletsprojects.com/en/3.1.x/
+
+nano myproject/settings.py
+
+'DIRS': [os.path.join(BASE_DIR, 'templates')],
+
+Modify boards.views
+
+from django.shortcuts import render
+
+return render(request, 'listboards.html', {'boards': boards})
+
+ Improve the HTML template to use a table instead:
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Boards</title>
+  </head>
+  <body>
+    <h1>Boards</h1>
+
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Board</th>
+          <th>Posts</th>
+          <th>Topics</th>
+          <th>Last Post</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for board in boards %}
+          <tr>
+            <td>
+              {{ board.name }}<br>
+              <small style="color: #888">{{ board.description }}</small>
+            </td>
+            <td>0</td>
+            <td>0</td>
+            <td></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>
+
+
+### February, 3rd ####
+
+Automatic Testing of the Homepage
+Writing some code to test another piece of code
+
+boards/tests.py
+
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+
+class HomeTests(TestCase):
+    def test_home_view_status_code(self):
+        url = reverse('home')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+
+simple test case but extremely useful. We are testing the status code of the response. The status code 200 means success.
+
+python manage.py test
+
+In Django 2.0 from django.urls import reverse
+
+DONE OK!!
+
+Static Files Setup
+Static files are the CSS, JavaScripts, Fonts, Images, or any other resources we may use to compose the user interface.
+
+in Project root directory, alongside with the boards, templates, and myproject folders, create a new folder named static, and within the static folder create another one named css:
+
+mkdir static
+
+mkdir static/css
+
+We start using Bootstrap
+
+Downloading Bootstrap 4
+If you want to download and host Bootstrap 4 yourself, go to https://getbootstrap.com/, and follow the instructions there.
+
+https://getbootstrap.com/docs/4.0/getting-started/download/#compiled-css-and-js
+
+We need bootstrap.min.css
+
+https://github.com/twbs/bootstrap/archive/v4.0.0.zip
+
+ wget https://github.com/twbs/bootstrap/archive/v4.0.0.zip
+
+sudo apt install unzip
+
+ubuntu@ip-172-31-11-178:~$ ls -ltr bootstrap-4.0.0/dist/css/
+total 1616
+-rw-rw-r-- 1 ubuntu ubuntu 551641 Jan 18  2018 bootstrap.min.css.map
+-rw-rw-r-- 1 ubuntu ubuntu 144877 Jan 18  2018 bootstrap.min.css
+
+cp bootstrap-4.0.0/dist/css/bootstrap.min.css myproject/myproject/static/css/
+
+step is to instruct Django where to find the static files. Open the settings.py, scroll to the bottom of the file and just after the STATIC_URL, add the following:
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+have to load the static files (the Bootstrap CSS file) in our template:
+
+templates/home.html
+
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+#### February 14th ######
+
+sudo apt update
+sudo apt upgrade
+
+cd myproject/myproject/
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ cat templates/listboards.html 
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Boards</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  
+  </head>
+  <body>
+    <h1>Boards</h1>
+
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Board</th>
+          <th>Posts</th>
+          <th>Topics</th>
+          <th>Last Post</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for board in boards %}
+          <tr>
+            <td>
+              {{ board.name }}<br>
+              <small style="color: #888">{{ board.description }}</small>
+            </td>
+            <td>0</td>
+            <td>0</td>
+            <td></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>
+
+
+We want nicely formatted HTML output for the empty path
+
+def emptypath(request):
+    return HttpResponse("This function handles EMPTY Path")
+
+First, we need an HTML file for that
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Our Django Board</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.3/dist/jquery.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="jumbotron">
+    <h1>Welcome to our Django Project</h1>      
+    <p>This is the first welcome page, many others to come...</p>
+  </div>
+  <p>This is some text.</p>      
+  <p>This is another text.</p>      
+</div>
+
+</body>
+</html>
+
+welcome.html
+
+def emptypath(request):
+    #return HttpResponse("This function handles EMPTY Path")
+    return render(request, 'welcome.html')
+
+
+Now a new version of listboards...
+
+
+The way Django Works...
+
+SQL DB --> Python Code --> HTML Template (using CSS, Bootstrap, etc...) --> User's Browser
+
+
+Django Project must be customizable without using programming languages...
+
+
+Introduction to Django Admin
+
+python manage.py createsuperuser
+
+admin
+django2023
+
+from boards.models import Board
+
+
+boards/admin.py
+
+from django.contrib import admin
+from boards.models import Board
+
+admin.site.register(Board)
+
+### February 17th ###
+
+Made a reserve copy: Backup_170223
+
+Change OOP Python model
+
+
+ssh -i Paramiko.pem ubuntu@3.68.112.65
+
+boards/models.py
+
+class Topic(models.Model):
+    # other fields...
+    # Add `auto_now_add=True` to the `last_updated` field
+    last_updated = models.DateTimeField(auto_now_add=True)
+
+class Post(models.Model):
+    # other fields...
+    # Add `null=True` to the `updated_by` field
+    updated_by = models.ForeignKey(User, null=True, related_name='+')
+
+Our classes seem to be up to date, so we change nothing
+
+Still we will run migrations, activating venv first
+
+source venv/bin/activate
+
+
+python manage.py makemigrations
+python manage.py migrate
+
+(venv) ubuntu@ip-172-31-11-178:~/myproject/myproject$ python manage.py makemigrations
+No changes detected
+(venv) ubuntu@ip-172-31-11-178:~/myproject/myproject$ python manage.py migrate
+Operations to perform:
+  Apply all migrations: admin, auth, boards, contenttypes, sessions
+Running migrations:
+  No migrations to apply.
+
+
+myproject/urls.py
+
+from django.conf.urls import url
+from django.contrib import admin
+
+from boards import views
+
+urlpatterns = [
+    url(r'^$', views.home, name='home'),
+    url(r'^boards/(?P<pk>\d+)/$', views.board_topics, name='board_topics'),
+    url(r'^admin/', admin.site.urls),
+]
+
+path, re_path
+
+At the moment, urls.py looks like this:
+
+url method is obsolette and is no longer used!!!!
+
+from django.contrib import admin
+from django.urls import path
+from django.urls import re_path
+from boards import views
+
+
+urlpatterns = [
+   path('', views.emptypath, name="emptypath"),
+   path('newhome/', views.newhome, name='newhome'),
+   path('oldhome/', views.home, name='home'),
+   path('admin/', admin.site.urls),
+   path('list/', views.listboards, name='listboards'),
+   re_path(r'^boards/(?P<pk>\d+)/$', views.board_topics, name='board_topics'),
+   ]
+
+boards/views.py
+
+
+def board_topics(request, pk):
+    board = Board.objects.get(pk=pk)
+    return render(request, 'topics.html', {'board': board})
+
+
+Our views.py now looks like this:
+
+from django.shortcuts import render
+
+# Create your views here.
+
+from django.http import HttpResponse
+from boards.models import Board
+
+def home(request):
+    return HttpResponse("Hello, this is our first Application!")
+def newhome(request):
+    return HttpResponse("And this is another page of ours: Happy NEW Rabbit Year!")
+
+def emptypath(request):
+    #return HttpResponse("This function handles EMPTY Path")
+    return render(request, 'welcome.html')
+
+def listboards(request):
+    boards = Board.objects.all()
+    boards_names = list()
+
+    for board in boards:
+        boards_names.append(board.name)
+
+    #response_html = '<br>'.join(boards_names)
+
+    #return HttpResponse(response_html)
+
+    return render(request, 'listboards.html', {'boards': boards})
+
+New view function
+
+
+def board_topics(request, pk):
+    board = Board.objects.get(pk=pk)
+    return render(request, 'topics.html', {'board': board})
+
+
+How stuff works (is expected to work!):
+re_path(r'^boards/(?P<pk>\d+)/$', views.board_topics, name='board_topics'),
+>>>>>-->>>> board_topics(request, pk) --->>>> topics.html
+
+Now we must add a new HTML template
+
+templates/topics.html
+
+Currently, we don't have this file
+
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{{ board.name }}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  </head>
+  <body>
+    <div class="container">
+      <ol class="breadcrumb my-4">
+        <li class="breadcrumb-item">Boards</li>
+        <li class="breadcrumb-item active">{{ board.name }}</li>
+      </ol>
+    </div>
+  </body>
+</html>
+
+Now check the URL http://127.0.0.1:8000/boards/1/
+
+python manage.py runserver 0.0.0.0:8000
+
+We can now navigate to three (currently only 3) addresses like these:
+
+http://3.68.112.65:8000/boards/1/
+http://3.68.112.65:8000/boards/2/
+http://3.68.112.65:8000/boards/3/
+
+Currently, we can display the list of boards available by navigating to
+
+http://3.68.112.65:8000/list/
+
+Django
+This is a board about Django.
+0 0 
+Python
+A board about Python.
+0 0 
+Random
+Random Talk about everything...
+0 0
+
+NEXT STEP: Make board names clickable and display the topics inside...
+
+### March 3rd #####
+
+ssh -i Paramiko.pem ubuntu@3.68.112.65
+
+sudo apt update
+sudo apt upgrade
+sudo reboot
+
+source venv/bin/activate
+ python manage.py runserver 0.0.0.0:8000
+
+Reusable Templates
+
+Generic templates that can be used multiple times and adapted
+
+Create a new file named base.html in the templates folder:
+
+templates/base.html
+
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Django Boards{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  </head>
+  <body>
+    <div class="container">
+      <ol class="breadcrumb my-4">
+        {% block breadcrumb %}
+        {% endblock %}
+      </ol>
+      {% block content %}
+      {% endblock %}
+    </div>
+  </body>
+</html>
+
+
+Now let’s refactor our two templates: home.html and topics.html.
+
+templates/home.html
+
+{% extends 'base.html' %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item active">Boards</li>
+{% endblock %}
+
+{% block content %}
+  <table class="table">
+    <thead class="thead-inverse">
+      <tr>
+        <th>Board</th>
+        <th>Posts</th>
+        <th>Topics</th>
+        <th>Last Post</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for board in boards %}
+        <tr>
+          <td>
+            <a href="{% url 'board_topics' board.pk %}">{{ board.name }}</a>
+            <small class="text-muted d-block">{{ board.description }}</small>
+          </td>
+          <td class="align-middle">0</td>
+          <td class="align-middle">0</td>
+          <td></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+templates/topics.html
+
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ board.name }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
+  <li class="breadcrumb-item active">{{ board.name }}</li>
+{% endblock %}
+
+{% block content %}
+    <!-- just leaving it empty for now. we will add core here soon. -->
+{% endblock %}
+
+
+We are going to decorate each web page with a nicely looking navigation panel. 
+
+Now that we have the base.html template, we can easily add a top bar with a menu:
+
+templates/base.html
+
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Django Boards{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <ol class="breadcrumb my-4">
+        {% block breadcrumb %}
+        {% endblock %}
+      </ol>
+      {% block content %}
+      {% endblock %}
+    </div>
+  </body>
+</html>
+
+Now run Django server again... home page will change
+
+Now we want to use some Google font
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&display=swap" rel="stylesheet">
+
+font-family: 'Gloock', serif;
+
+This must be incorporated into base.html
+
+create separate app.css file
+
+Final version of base.html
+
+cat templates/base.html
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gloock&display=swap" rel="stylesheet">
+    <title>{% block title %}Django Boards{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <style>.navbar-brand {font-family: 'Gloock', serif;}</style>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <ol class="breadcrumb my-4">
+        {% block breadcrumb %}
+        {% endblock %}
+      </ol>
+      {% block content %}
+      {% endblock %}
+    </div>
+  </body>
+</html>
+
+
+####### March 10th #####
+
+ssh -i Paramiko.pem ubuntu@3.68.112.65
+
+Upgrade and reboot
+
+Using Google Fonts
+
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Django Boards{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- <style>.navbar-brand {font-family: 'Gloock', serif;}</style> -->
+    <style>
+          @import url('https://fonts.googleapis.com/css2?family=Gloock&display=swap');
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+      </div>
+    </nav>
+
+    static/css/app.css
+
+    .navbar-brand {
+  font-family: 'Gloock';
+}
+
+
+
+Forms
+Forms are used to deal with user input. It’s a very common task in any web application or website. The standard way to do it is through HTML forms, where the user input some data, submit it to the server, and then the server does something with it.
+
+How Not Implement a Form
+At first, I thought about jumping straight to the forms API. But I think it would be a good idea for us to spend some time trying to understand the underlying details of form processing. Otherwise, it will end up looking like magic, which is a bad thing, because when things go wrong, you have no idea where to look for the problem.
+
+First thing, let’s create a new URL route named new_topic:
+
+myproject/urls.py
+
+Currently, the file has:
+
+cat myproject/urls.py
+"""myproject URL Configuration
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/4.1/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.contrib import admin
+from django.urls import path
+from django.urls import re_path
+from boards import views
+
+
+urlpatterns = [
+   path('', views.home, name="home"),
+   path('newhome/', views.newhome, name='newhome'),
+   path('oldhome/', views.home, name='home'),
+   path('admin/', admin.site.urls),
+   # path('list/', views.listboards, name='listboards'),
+   re_path(r'^boards/(?P<pk>\d+)/$', views.board_topics, name='board_topics'),
+   ]
+
+http://3.68.112.65:8000/boards/1/
+http://3.68.112.65:8000/boards/2/
+http://3.68.112.65:8000/boards/3/
+
+
+Change the content of myproject/urls.py
+
+urlpatterns = [
+   path('', views.home, name="home"),
+   path('newhome/', views.newhome, name='newhome'),
+   path('oldhome/', views.home, name='home'),
+   path('admin/', admin.site.urls),
+   re_path(r'^boards/(?P<pk>\d+)/$', views.board_topics, name='board_topics'),
+   re_path(r'^boards/(?P<pk>\d+)/new/$', views.new_topic, name='new_topic'),
+   ]
+
+Now let’s create the new_topic view function:
+
+boards/views.py
+
+Currently the file has:
+
+cat boards/views.py 
+from django.shortcuts import render
+
+# Create your views here.
+
+from django.http import HttpResponse
+from boards.models import Board
+
+
+def newhome(request):
+    return HttpResponse("And this is another page of ours: Happy NEW Rabbit Year!")
+
+def emptypath(request):
+    return render(request, 'welcome.html')
+
+def home(request):
+    boards = Board.objects.all()
+    boards_names = list()
+
+    for board in boards:
+        boards_names.append(board.name)
+
+    return render(request, 'home.html', {'boards': boards})
+
+def board_topics(request, pk):
+    board = Board.objects.get(pk=pk)
+    return render(request, 'topics.html', {'board': board})
+
+
+Now we want to add a new view function:
+
+from django.shortcuts import render, get_object_or_404
+
+def new_topic(request, pk):
+    board = get_object_or_404(Board, pk=pk)
+    return render(request, 'new_topic.html', {'board': board})
+
+
+
+Now we just need a template named new_topic.html to see some code working:
+
+templates/new_topic.html
+
+Currently, this file does not exist!
+
+{% extends 'base.html' %}
+
+{% block title %}Start a New Topic{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'board_topics' board.pk %}">{{ board.name }}</a></li>
+  <li class="breadcrumb-item active">New topic</li>
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}
+
+
+Open the URL http://3.68.112.65:8000/boards/1/new/. The result, for now, is the following page:
+
+The source that we see inside the browser is made up from 2 files: base.html and new_topic.html
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Start a New Topic</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/app.css">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <!-- <style>.navbar-brand {font-family: 'Gloock', serif;}</style> -->
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gloock&display=swap');
+    </style>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="/oldhome/">Django Boards</a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <ol class="breadcrumb my-4">
+        
+  <li class="breadcrumb-item"><a href="/oldhome/">Boards</a></li>
+  <li class="breadcrumb-item"><a href="/boards/3/">Random</a></li>
+  <li class="breadcrumb-item active">New topic</li>
+
+      </ol>
+      
+
+
+    </div>
+  </body>
+</html>
+
+It works OK!!!
+
+Good, now it’s time to start creating the form.
+
+templates/new_topic.html
+
+The existing file must be updated
+
+Good, now it’s time to start creating the form.
+
+{% extends 'base.html' %}
+
+{% block title %}Start a New Topic{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'board_topics' board.pk %}">{{ board.name }}</a></li>
+  <li class="breadcrumb-item active">New topic</li>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="id_subject">Subject</label>
+      <input type="text" class="form-control" id="id_subject" name="subject">
+    </div>
+    <div class="form-group">
+      <label for="id_message">Message</label>
+      <textarea class="form-control" id="id_message" name="message" rows="5"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Post</button>
+  </form>
+{% endblock %}
+
+
+The input form is diplayed OK, but we need a modified view function that will implement the action of adding some
+new content:
+
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect, get_object_or_404
+from board.models import Board, Topic, Post
+
+def new_topic(request, pk):
+    board = get_object_or_404(Board, pk=pk)
+
+    if request.method == 'POST':
+        subject = request.POST['subject']
+        message = request.POST['message']
+
+        user = User.objects.first()  # TODO: get the currently logged in user
+
+        topic = Topic.objects.create(
+            subject=subject,
+            board=board,
+            starter=user
+        )
+
+        post = Post.objects.create(
+            message=message,
+            topic=topic,
+            created_by=user
+        )
+
+        return redirect('board_topics', pk=board.pk)  # TODO: redirect to the created topic page
+
+    return render(request, 'new_topic.html', {'board': board})
+
+
+Now let's modify views.py
+
+and then start Django server and try to add new topic
+
+It works!
+
+
+But we haven’t implemented the topics listing yet, so there’s nothing to see here. Let’s edit the templates/topics.html file to do a proper listing:
+
+templates/topics.html
+
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ board.name }} - {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
+  <li class="breadcrumb-item active">{{ board.name }}</li>
+{% endblock %}
+
+{% block content %}
+  <table class="table">
+    <thead class="thead-inverse">
+      <tr>
+        <th>Topic</th>
+        <th>Starter</th>
+        <th>Replies</th>
+        <th>Views</th>
+        <th>Last Update</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for topic in board.topics.all %}
+        <tr>
+          <td>{{ topic.subject }}</td>
+          <td>{{ topic.starter.username }}</td>
+          <td>0</td>
+          <td>0</td>
+          <td>{{ topic.last_updated }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+### March 17th
+
+sudo apt update
+sudo apt upgrade
+sudo reboot
+
+New topic in Random board...
+http://3.68.112.65:8000/boards/3/new/
+
+ ls -ltr
+total 352
+-rwxrwxr-x 1 ubuntu ubuntu    665 Dec  6 11:31 manage.py
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 13 11:06 venv
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 06:53 db.sqlite3.backup
+drwxrwxr-x 3 ubuntu ubuntu   4096 Feb  3 07:15 static
+drwxrwxr-x 3 ubuntu ubuntu   4096 Mar 10 11:32 myproject
+drwxrwxr-x 4 ubuntu ubuntu   4096 Mar 10 12:07 boards
+drwxrwxr-x 2 ubuntu ubuntu   4096 Mar 10 12:11 templates
+-rw-r--r-- 1 ubuntu ubuntu 167936 Mar 17 11:22 db.sqlite3
+
+sqlite3 db.sqlite3
+To see what's inside the board's database....
+
+Creating Forms The Right Way
+
+Let’s create a new file named forms.py inside the boards’ folder:
+
+Currently, it doesn't exist
+
+
+from django import forms
+from boards.models import Topic
+
+class NewTopicForm(forms.ModelForm):
+    message = forms.CharField(widget=forms.Textarea(), max_length=4000)
+
+    class Meta:
+        model = Topic
+        fields = ['subject', 'message']
+
+
+Now we have to refactor our views.py:
+
+Currently it looks like this....
+
+cat boards/views.py 
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect, get_object_or_404
+from boards.models import Board, Topic, Post
+
+def newhome(request):
+    return HttpResponse("And this is another page of ours: Happy NEW Rabbit Year!")
+
+def emptypath(request):
+    #return HttpResponse("This function handles EMPTY Path")
+    return render(request, 'welcome.html')
+
+def home(request):
+    boards = Board.objects.all()
+    boards_names = list()
+
+    for board in boards:
+        boards_names.append(board.name)
+
+    #response_html = '<br>'.join(boards_names)
+
+    #return HttpResponse(response_html)
+
+    return render(request, 'home.html', {'boards': boards})
+
+def board_topics(request, pk):
+    board = Board.objects.get(pk=pk)
+    return render(request, 'topics.html', {'board': board})
+
+
+def new_topic(request, pk):
+    board = get_object_or_404(Board, pk=pk)
+
+    if request.method == 'POST':
+        subject = request.POST['subject']
+        message = request.POST['message']
+
+        user = User.objects.first()  # TODO: get the currently logged in user
+
+        topic = Topic.objects.create(
+            subject=subject,
+            board=board,
+            starter=user
+        )
+
+        post = Post.objects.create(
+            message=message,
+            topic=topic,
+            created_by=user
+        )
+
+        return redirect('board_topics', pk=board.pk)  # TODO: redirect to the created topic page
+
+    return render(request, 'new_topic.html', {'board': board})
+
+
+Now some updates must be made
+
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect, get_object_or_404
+from boards.forms import NewTopicForm ### this line must be added!
+from boads.models import Board, Topic, Post
+
+def new_topic(request, pk): ## this function must be updated...
+    board = get_object_or_404(Board, pk=pk)
+    user = User.objects.first()  # TODO: get the currently logged in user
+    if request.method == 'POST':
+        form = NewTopicForm(request.POST)
+        if form.is_valid():
+            topic = form.save(commit=False)
+            topic.board = board
+            topic.starter = user
+            topic.save()
+            post = Post.objects.create(
+                message=form.cleaned_data.get('message'),
+                topic=topic,
+                created_by=user
+            )
+            return redirect('board_topics', pk=board.pk)  # TODO: redirect to the created topic page
+    else:
+        form = NewTopicForm()
+    return render(request, 'new_topic.html', {'board': board, 'form': form})
+
+
+Let’s update the new_topic.html template to fully use the Django Forms API:
+
+templates/new_topic.html
+
+{% extends 'base.html' %}
+
+{% block title %}Start a New Topic{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'board_topics' board.pk %}">{{ board.name }}</a></li>
+  <li class="breadcrumb-item active">New topic</li>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Post</button>
+  </form>
+{% endblock %}
+
+Let's now start Django and see how the new stuff works...
+
+boards/forms.py
+
+class NewTopicForm(forms.ModelForm):
+    message = forms.CharField(
+        widget=forms.Textarea(),
+        max_length=4000,
+        help_text='The max length of the text is 4000.' ## this line of code will add help text to the input field
+    )
+
+    class Meta:
+        model = Topic
+        fields = ['subject', 'message']
+
+
+class NewTopicForm(forms.ModelForm):
+    message = forms.CharField(
+        widget=forms.Textarea(
+            attrs={'rows': 5, 'placeholder': 'What is on your mind?'} ## placeholder for the input field
+        ),
+        max_length=4000,
+        help_text='The max length of the text is 4000.'
+    )
+
+    class Meta:
+        model = Topic
+        fields = ['subject', 'message']
+
+TODO::
+
+Rendering Bootstrap Forms
+Alright, so let’s make things pretty again.
+https://simpleisbetterthancomplex.com/series/2017/09/18/a-complete-beginners-guide-to-django-part-3.html#creating-forms-the-right-way
+
+
+#### March 24th
+
+ls -ltr
+total 352
+-rwxrwxr-x 1 ubuntu ubuntu    665 Dec  6 11:31 manage.py
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 13 11:06 venv
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 06:53 db.sqlite3.backup
+drwxrwxr-x 3 ubuntu ubuntu   4096 Feb  3 07:15 static
+drwxrwxr-x 3 ubuntu ubuntu   4096 Mar 10 11:32 myproject
+drwxrwxr-x 2 ubuntu ubuntu   4096 Mar 17 11:47 templates #changed
+-rw-r--r-- 1 ubuntu ubuntu 167936 Mar 17 11:53 db.sqlite3  # changed
+drwxrwxr-x 4 ubuntu ubuntu   4096 Mar 17 11:55 boards #changed
+
+in templates
+
+514 Mar 17 11:47 new_topic.html
+
+in boards
+
+-rw-rw-r-- 1 ubuntu ubuntu 1692 Mar 17 11:44 views.py
+-rw-rw-r-- 1 ubuntu ubuntu  404 Mar 17 11:54 forms.py
+
+
+cat boards/forms.py 
+from django import forms
+from boards.models import Topic
+
+class NewTopicForm(forms.ModelForm):
+    message = forms.CharField(
+        widget=forms.Textarea(
+            attrs={'rows': 5, 'placeholder': 'What is on your mind?'}
+        ),
+        max_length=4000,
+        help_text='The max length of the text is 4000.'
+    )
+
+    class Meta:
+        model = Topic
+        fields = ['subject', 'message']
+
+
+in boards/views.py
+
+from boards.forms import NewTopicForm ### this line must be added!
+
+#........
+
+def new_topic(request, pk): ## this function must be updated...
+    board = get_object_or_404(Board, pk=pk)
+    user = User.objects.first()  # TODO: get the currently logged in user
+    if request.method == 'POST':
+        form = NewTopicForm(request.POST)
+        if form.is_valid():
+            topic = form.save(commit=False)
+            topic.board = board
+            topic.starter = user
+            topic.save()
+            post = Post.objects.create(
+                message=form.cleaned_data.get('message'),
+                topic=topic,
+                created_by=user
+            )
+            return redirect('board_topics', pk=board.pk)  # TODO: redirect to the created topic page
+    else:
+        form = NewTopicForm()
+    return render(request, 'new_topic.html', {'board': board, 'form': form})
+
+
+## How this new topic will be displayed?
+
+templates/new_topic.htmls
+
+cat templates/new_topic.html 
+{% extends 'base.html' %}
+
+{% block title %}Start a New Topic{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'board_topics' board.pk %}">{{ board.name }}</a></li>
+  <li class="breadcrumb-item active">New topic</li>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Post</button>
+  </form>
+{% endblock %}
+
+
+
+source venv/bin/activate
+source venv/bin/activate
+source venv/bin/activate
+
+
+http://3.68.112.65:8000/boards/
+
+Rendering Bootstrap Forms
+
+pip install django-widget-tweaks
+
+https://www.geeksforgeeks.org/how-to-customize-django-forms-using-django-widget-tweaks/
+
+pip install django-widget-tweaks
+
+myproject/settings.py
+
+Currently it looks like:
+
+## ............
+
+# Application definition
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'boards',
+]
+
+## ...........
+
+ADD one line:
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    'widget_tweaks',
+
+    'boards',
+]
+
+
+Now change templates/new_topic.html
+
+It should now look like
+
+{% extends 'base.html' %}
+
+{% load widget_tweaks %}
+
+{% block title %}Start a New Topic{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'board_topics' board.pk %}">{{ board.name }}</a></li>
+  <li class="breadcrumb-item active">New topic</li>
+{% endblock %}
+
+{% block content %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    {% for field in form %}
+      <div class="form-group">
+        {{ field.label_tag }}
+
+        {% render_field field class="form-control" %}
+
+        {% if field.help_text %}
+          <small class="form-text text-muted">
+            {{ field.help_text }}
+          </small>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-success">Post</button>
+  </form>
+{% endblock %}
+
+Now to implement the Bootstrap 4 validation tags, we can change the new_topic.html template:
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  {% for field in form %}
+    <div class="form-group">
+      {{ field.label_tag }}
+
+      {% if form.is_bound %}
+        {% if field.errors %}
+
+          {% render_field field class="form-control is-invalid" %}
+          {% for error in field.errors %}
+            <div class="invalid-feedback">
+              {{ error }}
+            </div>
+          {% endfor %}
+
+        {% else %}
+          {% render_field field class="form-control is-valid" %}
+        {% endif %}
+      {% else %}
+        {% render_field field class="form-control" %}
+      {% endif %}
+
+      {% if field.help_text %}
+        <small class="form-text text-muted">
+          {{ field.help_text }}
+        </small>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-success">Post</button>
+</form>
+
+ERROR!!!
+
+Invalid block tag on line 11: 'render_field', expected 'elif', 'else' or 'endif'. Did you forget to register or load this tag?
+
+      {% render_field field class="form-control is-invalid" %}
+
+
+
+### April 14th
+
+### Resumng after a break...
+
+ssh -i Paramiko.pem ubuntu@3.68.112.65
+
+sudo apt update
+sudo apt upgrade
+
+cd myproject/myproject/
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ ls -ltr
+total 352
+-rwxrwxr-x 1 ubuntu ubuntu    665 Dec  6 11:31 manage.py
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 13 11:06 venv
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 06:53 db.sqlite3.backup
+drwxrwxr-x 3 ubuntu ubuntu   4096 Feb  3 07:15 static
+drwxrwxr-x 4 ubuntu ubuntu   4096 Mar 17 11:55 boards
+drwxrwxr-x 3 ubuntu ubuntu   4096 Mar 24 11:47 myproject
+drwxrwxr-x 2 ubuntu ubuntu   4096 Mar 24 12:01 templates
+-rw-r--r-- 1 ubuntu ubuntu 167936 Mar 24 12:03 db.sqlite3
+
+source venv/bin/activate
+
+python manage.py runserver 0.0.0.0:8000
+
+http://3.68.112.65:8000/
+
+WORKS! New topics created!
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ ls -ltr
+total 352
+-rwxrwxr-x 1 ubuntu ubuntu    665 Dec  6 11:31 manage.py
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 13 11:06 venv
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 06:53 db.sqlite3.backup
+drwxrwxr-x 3 ubuntu ubuntu   4096 Feb  3 07:15 static
+drwxrwxr-x 4 ubuntu ubuntu   4096 Mar 17 11:55 boards
+drwxrwxr-x 3 ubuntu ubuntu   4096 Mar 24 11:47 myproject
+drwxrwxr-x 2 ubuntu ubuntu   4096 Mar 24 12:01 templates
+-rw-r--r-- 1 ubuntu ubuntu 167936 Apr 14 07:39 db.sqlite3
+
+
+Creating Authentication System
+
+https://simpleisbetterthancomplex.com/series/2017/09/25/a-complete-beginners-guide-to-django-part-4.html#introduction
+
+django-admin startapp accounts
+
+
+
+Modify settings.py
+
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    'widget_tweaks',
+
+    'accounts', #### Add this line!
+    'boards',
+]
+
+
