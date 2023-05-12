@@ -1,0 +1,13 @@
+
+VPS restarted today on May 11th
+
+3.68.85.218
+172.31.11.178
+
+ssh -i Paramiko.pem ubuntu@3.68.85.218
+
+Everything works!
+
+Look into files updated today. All is seen from there!
+
+

@@ -1,0 +1,212 @@
+
+VPS restarted today on May 11th
+
+3.68.85.218
+172.31.11.178
+
+ssh -i Paramiko.pem ubuntu@3.68.85.218
+
+Everything works!
+
+Look into files updated today. All is seen from there!
+
+
+ALLOWED_HOSTS = ['ec2-3-68-112-65.eu-central-1.compute.amazonaws.com', '3.68.112.65', '3.68.85.218']
+Should contain real up-to-date domain names or IP addresses
+
+The next problem to fix was with SignUp Page
+
+-rw-rw-r-- 1 ubuntu ubuntu  760 May 11 13:04 views.py
+
+(venv) ubuntu@ip-172-31-11-178:~/myproject/myproject$ cat accounts/views.py 
+from django.contrib.auth import login as auth_login
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm
+
+# Create your views here.
+
+#def signup(request):
+#    #return render(request, 'signup.html')
+#    form = UserCreationForm()
+#    return render(request, 'signup.html', {'form': form})
+
+def signup(request):
+    print("Signup started")
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        print(form)
+        if form.is_valid():
+            print("Form is valid")
+            user = form.save()
+            auth_login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'signup.html', {'form': form})
+
+
+## home is the view function name that should be activated in case the redirect works
+
+urlpatterns = [
+   path('', views.home, name="home"),
+   path('newhome/', views.newhome, name='newhome'),
+   path('oldhome/', views.home, name='home'),
+   path('admin/', admin.site.urls),
+   re_path(r'^signup/$', accounts_views.signup, name='signup'),
+   re_path(r'^boards/(?P<pk>\d+)/$', views.board_topics, name='board_topics'),
+   re_path(r'^boards/(?P<pk>\d+)/new/$', views.new_topic, name='new_topic'),
+   ]
+
+
+Passwords must be long enough, contain symbols and digits etc...
+
+sqlite3 db.sqlite3
+select * from auth_user;
+
+Will show that the new used was successfully added to our database
+
+Reference to Authenticated User in the Template
+
+We need to change templates/base.html
+
+Currently this file has:
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ cat templates/base.html 
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Django Boards{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- <style>.navbar-brand {font-family: 'Gloock', serif;}</style> -->
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gloock&display=swap');
+    </style>
+    {% block stylesheet %}{% endblock %}  <!-- HERE -->
+  </head>
+
+  <body>
+    {% block body %}  <!-- HERE -->
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+          <a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+        </div>
+      </nav>
+      <div class="container">
+        <ol class="breadcrumb my-4">
+          {% block breadcrumb %}
+          {% endblock %}
+        </ol>
+        {% block content %}
+        {% endblock %}
+      </div>
+    {% endblock body %}  <!-- AND HERE -->
+  </body>
+</html>
+
+
+Change it to:
+{% block body %}
+  <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainMenu">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">{{ user.username }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <ol class="breadcrumb my-4">
+      {% block breadcrumb %}
+      {% endblock %}
+    </ol>
+    {% block content %}
+    {% endblock %}
+  </div>
+{% endblock body %}
+
+The header and the footer parts from the OLD base.html should NOT be forgotten and added
+
+Everything works, and the current user name is displayed!
+
+
+
+Adding the Email Field to the Form
+
+Create a file named forms.py inside the accounts folder
+
+accounts/forms.py
+
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+class SignUpForm(UserCreationForm):
+    email = forms.CharField(max_length=254, required=True, widget=forms.EmailInput())
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password1', 'password2')
+
+
+Change accounts/views.py
+
+Currently it has:
+
+from django.contrib.auth import login as auth_login
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm
+
+# Create your views here.
+
+#def signup(request):
+#    #return render(request, 'signup.html')
+#    form = UserCreationForm()
+#    return render(request, 'signup.html', {'form': form})
+
+def signup(request):
+    print("Signup started")
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        print(form)
+        if form.is_valid():
+            print("Form is valid")
+            user = form.save()
+            auth_login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'signup.html', {'form': form})
+
+
+It should contain:
+
+from django.contrib.auth import login as auth_login
+from django.shortcuts import render, redirect
+
+from accounts.forms import SignUpForm
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            return redirect('home')
+    else:
+        form = SignUpForm()
+    return render(request, 'signup.html', {'form': form})
+
+
+This works!
+
+Logout and Login will be our next topics!
+
