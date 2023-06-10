@@ -1,0 +1,783 @@
+
+VPS restarted today on May 11th
+
+3.68.85.218
+172.31.11.178
+
+ssh -i Paramiko.pem ubuntu@3.68.85.218
+
+Everything works!
+
+Look into files updated today. All is seen from there!
+
+
+ALLOWED_HOSTS = ['ec2-3-68-112-65.eu-central-1.compute.amazonaws.com', '3.68.112.65', '3.68.85.218']
+Should contain real up-to-date domain names or IP addresses
+
+The next problem to fix was with SignUp Page
+
+-rw-rw-r-- 1 ubuntu ubuntu  760 May 11 13:04 views.py
+
+(venv) ubuntu@ip-172-31-11-178:~/myproject/myproject$ cat accounts/views.py 
+from django.contrib.auth import login as auth_login
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm
+
+# Create your views here.
+
+#def signup(request):
+#    #return render(request, 'signup.html')
+#    form = UserCreationForm()
+#    return render(request, 'signup.html', {'form': form})
+
+def signup(request):
+    print("Signup started")
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        print(form)
+        if form.is_valid():
+            print("Form is valid")
+            user = form.save()
+            auth_login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'signup.html', {'form': form})
+
+
+## home is the view function name that should be activated in case the redirect works
+
+urlpatterns = [
+   path('', views.home, name="home"),
+   path('newhome/', views.newhome, name='newhome'),
+   path('oldhome/', views.home, name='home'),
+   path('admin/', admin.site.urls),
+   re_path(r'^signup/$', accounts_views.signup, name='signup'),
+   re_path(r'^boards/(?P<pk>\d+)/$', views.board_topics, name='board_topics'),
+   re_path(r'^boards/(?P<pk>\d+)/new/$', views.new_topic, name='new_topic'),
+   ]
+
+
+Passwords must be long enough, contain symbols and digits etc...
+
+sqlite3 db.sqlite3
+select * from auth_user;
+
+Will show that the new used was successfully added to our database
+
+Reference to Authenticated User in the Template
+
+We need to change templates/base.html
+
+Currently this file has:
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ cat templates/base.html 
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Django Boards{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- <style>.navbar-brand {font-family: 'Gloock', serif;}</style> -->
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gloock&display=swap');
+    </style>
+    {% block stylesheet %}{% endblock %}  <!-- HERE -->
+  </head>
+
+  <body>
+    {% block body %}  <!-- HERE -->
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+          <a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+        </div>
+      </nav>
+      <div class="container">
+        <ol class="breadcrumb my-4">
+          {% block breadcrumb %}
+          {% endblock %}
+        </ol>
+        {% block content %}
+        {% endblock %}
+      </div>
+    {% endblock body %}  <!-- AND HERE -->
+  </body>
+</html>
+
+
+Change it to:
+{% block body %}
+  <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainMenu">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">{{ user.username }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <ol class="breadcrumb my-4">
+      {% block breadcrumb %}
+      {% endblock %}
+    </ol>
+    {% block content %}
+    {% endblock %}
+  </div>
+{% endblock body %}
+
+The header and the footer parts from the OLD base.html should NOT be forgotten and added
+
+Everything works, and the current user name is displayed!
+
+
+
+Adding the Email Field to the Form
+
+Create a file named forms.py inside the accounts folder
+
+accounts/forms.py
+
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+class SignUpForm(UserCreationForm):
+    email = forms.CharField(max_length=254, required=True, widget=forms.EmailInput())
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password1', 'password2')
+
+
+Change accounts/views.py
+
+Currently it has:
+
+from django.contrib.auth import login as auth_login
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm
+
+# Create your views here.
+
+#def signup(request):
+#    #return render(request, 'signup.html')
+#    form = UserCreationForm()
+#    return render(request, 'signup.html', {'form': form})
+
+def signup(request):
+    print("Signup started")
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        print(form)
+        if form.is_valid():
+            print("Form is valid")
+            user = form.save()
+            auth_login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'signup.html', {'form': form})
+
+
+It should contain:
+
+from django.contrib.auth import login as auth_login
+from django.shortcuts import render, redirect
+
+from accounts.forms import SignUpForm
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            auth_login(request, user)
+            return redirect('home')
+    else:
+        form = SignUpForm()
+    return render(request, 'signup.html', {'form': form})
+
+
+This works!
+
+Logout and Login will be our next topics!
+
+## May 19th
+
+Using GIT for version control?
+https://www.freecodecamp.org/news/get-started-with-version-control-and-git/
+
+Created .gitignore
+
+git init
+git add .
+
+git commit -m "First commit May 19th"
+
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ git log
+commit 97c432e8ec5181e1772876256c486f4a6d3406ff (HEAD -> master)
+Author: Ubuntu <ubuntu@ip-172-31-11-178.eu-central-1.compute.internal>
+Date:   Fri May 19 10:25:56 2023 +0000
+
+    First commit May 19th
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ 
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ git shortlog
+Ubuntu (1):
+      First commit May 19th
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ git log --oneline
+97c432e (HEAD -> master) First commit May 19th
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ nano gittest.txt
+
+Hard reset
+
+git reset --hard HEAD~1
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ git reset --hard HEAD~1
+HEAD is now at d9d4050 Second commit May 19th
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ git reset --hard HEAD~1
+HEAD is now at 97c432e First commit May 19th
+
+ubuntu@ip-172-31-11-178:~/myproject/myproject$ cat gittest.txt 
+cat: gittest.txt: No such file or directory
+
+Improving the Sign Up Template
+
+Create img directory inside static
+
+
+wget https://www.toptal.com/designers/subtlepatterns/uploads/paisley.png
+
+Then after that, create a new CSS file named accounts.css in the static/css.
+
+static/css/accounts.css
+
+body {
+  background-image: url(../img/paisley.png);
+}
+
+.logo {
+  font-family: 'Peralta', cursive;
+}
+
+.logo a {
+  color: rgba(0,0,0,.9);
+}
+
+.logo a:hover,
+.logo a:active {
+  text-decoration: none;
+}
+
+Change templates/signup.html
+
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block stylesheet %}
+  <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <h1 class="text-center logo my-4">
+      <a href="{% url 'home' %}">Django Boards</a>
+    </h1>
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-md-10 col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title">Sign up</h3>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {% include 'includes/form.html' %}
+              <button type="submit" class="btn btn-primary btn-block">Create an account</button>
+            </form>
+          </div>
+          <div class="card-footer text-muted text-center">
+            Already have an account? <a href="#">Log in</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+The background works, but the font doesn't seem to work properly
+
+
+## May 29th
+
+It works!
+
+In base.html
+
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Django Boards{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- <style>.navbar-brand {font-family: 'Gloock', serif;}</style> -->
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gloock&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Peralta&display=swap');
+    </style>
+    {% block stylesheet %}{% endblock %}  <!-- HERE -->
+  </head>
+
+  <body>
+
+.............
+
+Then CSS works:
+accounts.css
+
+body {
+  background-image: url(../img/paisley.png);
+}
+
+.logo {
+  font-family: 'Peralta', cursive;
+}
+
+.logo a {
+  color: rgba(0,0,0,.9);
+}
+
+.logo a:hover,
+.logo a:active {
+  text-decoration: none;
+}
+
+
+Logout
+
+myproject/urls.py
+
+Currently this file holds:
+
+ cat myproject/urls.py 
+
+from django.contrib import admin
+from django.urls import path
+from django.urls import re_path
+from boards import views
+from accounts import views as accounts_views
+
+
+urlpatterns = [
+   path('', views.home, name="home"),
+   path('newhome/', views.newhome, name='newhome'),
+   path('oldhome/', views.home, name='home'),
+   path('admin/', admin.site.urls),
+   re_path(r'^signup/$', accounts_views.signup, name='signup'),
+   re_path(r'^boards/(?P<pk>\d+)/$', views.board_topics, name='board_topics'),
+   re_path(r'^boards/(?P<pk>\d+)/new/$', views.new_topic, name='new_topic'),
+   ]
+
+
+One line must be added - what to do if user wants to log out of the system
+
+from django.conf.urls import url
+from django.contrib import admin
+from django.contrib.auth import views as auth_views
+
+from accounts import views as accounts_views
+from boards import views
+
+urlpatterns = [
+    url(r'^$', views.home, name='home'),
+    url(r'^signup/$', accounts_views.signup, name='signup'),
+    url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
+    url(r'^boards/(?P<pk>\d+)/$', views.board_topics, name='board_topics'),
+    url(r'^boards/(?P<pk>\d+)/new/$', views.new_topic, name='new_topic'),
+    url(r'^admin/', admin.site.urls),
+]
+
+This worked! Any user can log out!
+
+
+Open the settings.py file and add the LOGOUT_REDIRECT_URL variable to the bottom of the file:
+
+myproject/settings.py
+
+LOGOUT_REDIRECT_URL = 'home'
+
+
+Displaying Menu For Authenticated Users
+
+
+First, go to jquery.com/download/ and download the compressed, production jQuery 3.2.1 version.
+
+Inside the static folder, create a new folder named js. Copy the jquery-3.2.1.min.js file to there.
+
+Bootstrap 4 also needs a library called Popper to work. Go to popper.js.org and download the latest version.
+
+https://unpkg.com/@popperjs/core@2
+
+https://unpkg.com/@popperjs/core@2.11.8/dist/umd/popper.min.js
+
+Also add Bootstrap
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js" integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ" crossorigin="anonymous"></script>
+
+
+## June, 3rd
+
+ssh djangoboards
+
+using .ssh/config
+
+Host djangoboards
+    HostName 3.68.85.218
+    User ubuntu
+    Port 22
+    IdentityFile ~/.ssh/Paramiko.pem
+
+
+https://www.howtogeek.com/287014/how-to-create-and-use-symbolic-links-aka-symlinks-on-linux/
+
+There are soft links and hard links
+
+Soft links are aliases to original paths
+Hard links are alternative names for the same disk locations.
+
+Hard links do not work for directories
+Soft links work for files and directories
+
+ln -s /path/to/original /path/to/link
+
+
+ubuntu@ip-172-31-11-178:~$ cat sample.txt 
+This is a sample file to test links.
+ubuntu@ip-172-31-11-178:~$ ln ~/sample.txt firstlink
+
+ubuntu@ip-172-31-11-178:~$ ls -ltr
+..............
+-rw-rw-r--  3 ubuntu ubuntu      78 Jun  3 07:19 secondlink
+-rw-rw-r--  3 ubuntu ubuntu      78 Jun  3 07:19 sample.txt
+-rw-rw-r--  3 ubuntu ubuntu      78 Jun  3 07:19 firstlink
+
+
+ubuntu@ip-172-31-11-178:~$ ln -s  ~/sample.txt softlink1
+
+ubuntu@ip-172-31-11-178:~$ ls -ltr
+.........
+-rw-rw-r--  3 ubuntu ubuntu      78 Jun  3 07:19 secondlink
+-rw-rw-r--  3 ubuntu ubuntu      78 Jun  3 07:19 sample.txt
+-rw-rw-r--  3 ubuntu ubuntu      78 Jun  3 07:19 firstlink
+lrwxrwxrwx  1 ubuntu ubuntu      23 Jun  3 07:22 softlink1 -> /home/ubuntu/sample.txt
+
+ubuntu@ip-172-31-11-178:~$ ls -ltr
+........
+lrwxrwxrwx  1 ubuntu ubuntu      23 Jun  3 07:22 softlink1 -> /home/ubuntu/sample.txt
+-rw-rw-r--  3 ubuntu ubuntu     128 Jun  3 07:24 secondlink
+-rw-rw-r--  3 ubuntu ubuntu     128 Jun  3 07:24 sample.txt
+-rw-rw-r--  3 ubuntu ubuntu     128 Jun  3 07:24 firstlink
+
+ubuntu@ip-172-31-11-178:~$ rm secondlink
+
+ubuntu@ip-172-31-11-178:~$ ls -ltr
+.......
+
+lrwxrwxrwx  1 ubuntu ubuntu      23 Jun  3 07:22 softlink1 -> /home/ubuntu/sample.txt
+-rw-rw-r--  2 ubuntu ubuntu     128 Jun  3 07:24 sample.txt
+-rw-rw-r--  2 ubuntu ubuntu     128 Jun  3 07:24 firstlink
+
+
+
+ubuntu@ip-172-31-11-178:~$ mv sample.txt testdir/
+
+ubuntu@ip-172-31-11-178:~$ ln testdir/ testlink
+ln: testdir/: hard link not allowed for directory
+
+ln -s testdir/ testlink
+
+ubuntu@ip-172-31-11-178:~$ cd myproject/myproject/static/
+ubuntu@ip-172-31-11-178:~/myproject/myproject/static$ ls ~/templates
+base.html      home.html  listboards.html      new_topic.debug.html  signup.html  topics.old.html
+base.old.html  includes   listboards.old.html  new_topic.html        topics.html  welcome.html
+
+https://www.howtogeek.com/287014/how-to-create-and-use-symbolic-links-aka-symlinks-on-linux/
+
+
+
+## June 10th
+
+ssh djangoboards
+
+ubuntu@ip-172-31-11-178:~$ cd basedir
+ubuntu@ip-172-31-11-178:~/basedir$ ls -ltr
+total 356
+-rwxrwxr-x 1 ubuntu ubuntu    665 Dec  6  2022 manage.py
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 13 11:06 venv
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16 06:53 db.sqlite3.backup
+drwxrwxr-x 4 ubuntu ubuntu   4096 Apr 14 11:40 boards
+drwxrwxr-x 4 ubuntu ubuntu   4096 May 12 11:00 accounts
+drwxrwxr-x 3 ubuntu ubuntu   4096 May 29 07:21 templates
+-rw-r--r-- 1 ubuntu ubuntu 167936 May 29 07:39 db.sqlite3
+drwxrwxr-x 3 ubuntu ubuntu   4096 May 29 07:42 myproject
+drwxrwxr-x 5 ubuntu ubuntu   4096 Jun  3 07:46 static
+
+
+
+## added on May 29th
+LOGOUT_REDIRECT_URL = 'home'
+
+
+Displaying Menu For Authenticated Users
+
+Changes to templates/base.html 
+
+
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Django Boards{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- <style>.navbar-brand {font-family: 'Gloock', serif;}</style> -->
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gloock&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Peralta&display=swap');
+    </style>
+    {% block stylesheet %}{% endblock %}  <!-- HERE -->
+  </head>
+
+  <body>
+
+
+{% block body %}
+  <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainMenu">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">{{ user.username }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <ol class="breadcrumb my-4">
+      {% block breadcrumb %}
+      {% endblock %}
+    </ol>
+    {% block content %}
+    {% endblock %}
+  </div>
+{% endblock body %}
+</body>
+
+
+Add some new lines
+
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Django Boards{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css?family=Peralta" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    {% block stylesheet %}{% endblock %}
+  </head>
+  <body>
+    {% block body %}
+    <!-- code suppressed for brevity -->
+    {% endblock body %}
+    <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  </body>
+</html>
+
+
+Now changes to navigation bar section
+
+Currently it has
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-lab>
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainMenu">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">{{ user.username }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+It should be:
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainMenu">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{ user.username }}
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
+            <a class="dropdown-item" href="#">My account</a>
+            <a class="dropdown-item" href="#">Change password</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+Improving the code to display buttons even if user is logged out
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'home' %}">Django Boards</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainMenu">
+      {% if user.is_authenticated %}
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {{ user.username }}
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
+              <a class="dropdown-item" href="#">My account</a>
+              <a class="dropdown-item" href="#">Change password</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
+            </div>
+          </li>
+        </ul>
+      {% else %}
+        <form class="form-inline ml-auto">
+          <a href="#" class="btn btn-outline-secondary">Log in</a>
+          <a href="{% url 'signup' %}" class="btn btn-primary ml-2">Sign up</a>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+After that Sign Up button works and links to http://3.68.85.218:8000/signup/
+
+Log In not implemented yet!
+
+
+Log IN
+
+New URL must be added
+
+myproject/urls.py
+
+url(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+
+myproject/settings.py
+
+LOGIN_REDIRECT_URL = 'home'
+
+templates/base.html
+
+<a href="{% url 'login' %}" class="btn btn-outline-secondary">Log in</a>
+
+create a template similar to the sign up page. Create a new file named login.html:
+
+templates/login.html NEW FILE!!!
+
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block stylesheet %}
+  <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    <h1 class="text-center logo my-4">
+      <a href="{% url 'home' %}">Django Boards</a>
+    </h1>
+    <div class="row justify-content-center">
+      <div class="col-lg-4 col-md-6 col-sm-8">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title">Log in</h3>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {% include 'includes/form.html' %}
+              <button type="submit" class="btn btn-primary btn-block">Log in</button>
+            </form>
+          </div>
+          <div class="card-footer text-muted text-center">
+            New to Django Boards? <a href="{% url 'signup' %}">Sign up</a>
+          </div>
+        </div>
+        <div class="text-center py-2">
+          <small>
+            <a href="#" class="text-muted">Forgot your password?</a>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+As a result:
+
+We can log in and log out as MarySmith
+with qwerty_12345
+
+But the dropdown menu does not work....
+
+Fix the menu!!!
+
+<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
+              <a class="dropdown-item" href="#">My account</a>
+              <a class="dropdown-item" href="#">Change password</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="{% url 'logout' %}">Log out</a>
+            </div>
+
