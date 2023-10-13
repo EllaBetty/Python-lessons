@@ -1,0 +1,185 @@
+### Fri Oct 13 10:21:49 UTC 2023
+
+DEPLOYMENT
+
+Make our application work permanently in AWS
+
+Update and Upgrade if necessary
+
+All packages are up to date.
+
+Disable Apache2 which works on our machine
+
+sudo systemctl status apache2
+sudo systemctl stop apache2
+
+sudo systemctl disable apache2
+
+It will not be loaded again after reboot
+
+DONE!!!
+
+Our directories in /home/ubuntu
+
+ubuntu@ip-172-31-11-178:~$ ls -ltr
+total 2840
+drwxrwxr-x 14 ubuntu ubuntu    4096 Jan 18  2018 bootstrap-4.0.0
+-rw-rw-r--  1 ubuntu ubuntu      76 Aug  5  2022 testfile.txt
+-rw-rw-r--  1 ubuntu ubuntu     227 Aug  5  2022 AWS.txt
+drwxrwxr-x  2 ubuntu ubuntu    4096 Oct  1  2022 MyBackup
+-rw-rw-r--  1 ubuntu ubuntu 2569500 Nov  5  2022 get-pip.py
+drwxrwxrwx  2 ubuntu ubuntu    4096 Nov 11  2022 files
+drwxrwxr-x  4 ubuntu ubuntu    4096 Dec  6  2022 myproject
+-rw-r--r--  1 ubuntu ubuntu       0 Apr 28 10:59 db.sqlite3
+-rw-rw-r--  1 ubuntu ubuntu    8692 May 29 05:47 django_log_1905.txt
+-rw-rw-r--  1 ubuntu ubuntu    6032 May 29 07:13 django_log_1205.txt
+-rw-rw-r--  1 ubuntu ubuntu     128 Jun  3 07:24 newlink
+drwxrwxr-x  2 ubuntu ubuntu    4096 Jun  3 07:31 testdir
+lrwxrwxrwx  1 ubuntu ubuntu      33 Jun  3 07:43 basedir -> /home/ubuntu/myproject/myproject/
+lrwxrwxrwx  1 ubuntu ubuntu      39 Jun  3 07:43 static -> /home/ubuntu/myproject/myproject/static
+lrwxrwxrwx  1 ubuntu ubuntu      43 Jun  3 07:44 templates -> /home/ubuntu/myproject/myproject/templates/
+-rw-rw-r--  1 ubuntu ubuntu   10929 Sep 29 06:21 simplemde.min.css
+-rw-rw-r--  1 ubuntu ubuntu  269308 Sep 29 06:21 simplemde.min.js
+
+
+Our main working directory
+
+ubuntu@ip-172-31-11-178:~$ cd basedir
+ubuntu@ip-172-31-11-178:~/basedir$ ls -ltr
+total 408
+-rwxrwxr-x 1 ubuntu ubuntu    665 Dec  6  2022 manage.py
+drwxrwxr-x 4 ubuntu ubuntu   4096 Dec 13  2022 venv
+-rw-r--r-- 1 ubuntu ubuntu 167936 Dec 16  2022 db.sqlite3.backup
+drwxrwxr-x 5 ubuntu ubuntu   4096 Jun  3 07:46 static
+drwxrwxr-x 4 ubuntu ubuntu   4096 Sep 15 10:53 accounts
+drwxrwxr-x 3 ubuntu ubuntu   4096 Oct  7 08:46 templates
+drwxrwxr-x 5 ubuntu ubuntu   4096 Oct  7 08:52 boards
+drwxrwxr-x 3 ubuntu ubuntu   4096 Oct  7 09:20 myproject
+-rw-rw-r-- 1 ubuntu ubuntu 221184 Oct  7 09:20 db.sqlite3
+
+PostgreSQL
+sudo apt-get -y install postgresql postgresql-contrib
+
+ubuntu@ip-172-31-11-178:~/basedir$ sudo systemctl status postgresql
+● postgresql.service - PostgreSQL RDBMS
+     Loaded: loaded (/lib/systemd/system/postgresql.service; enabled; vendor preset: enabled)
+     Active: active (exited) since Fri 2023-10-13 10:33:40 UTC; 37s ago
+   Main PID: 2268 (code=exited, status=0/SUCCESS)
+      Tasks: 0 (limit: 1126)
+     Memory: 0B
+     CGroup: /system.slice/postgresql.service
+
+DONE!
+
+NGINX
+
+sudo apt-get -y install nginx
+
+ubuntu@ip-172-31-11-178:~/basedir$ sudo systemctl status nginx
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+     Active: active (running) since Fri 2023-10-13 10:37:39 UTC; 17s ago
+       Docs: man:nginx(8)
+   Main PID: 4194 (nginx)
+      Tasks: 2 (limit: 1126)
+     Memory: 4.5M
+     CGroup: /system.slice/nginx.service
+             ├─4194 nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
+             └─4195 nginx: worker process
+
+
+http://djblog.grivis.space/aaaa
+
+This page does not exist!!
+
+sudo mv /var/www/html/index.html /var/www/html/index.old.html
+ 1402  sudo mv /var/www/html/index.nginx-debian.html /var/www/html/index.html
+
+
+Welcome to nginx!
+If you see this page, the nginx web server is successfully installed and working. Further configuration is required.
+
+For online documentation and support please refer to nginx.org.
+Commercial support is available at nginx.com.
+
+Thank you for using nginx.
+
+ubuntu@ip-172-31-11-178:~/basedir$ sudo systemctl enable nginx
+Synchronizing state of nginx.service with SysV service script with /lib/systemd/systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable nginx
+
+NGINX will restart again after reboot
+
+DONE!!!
+
+Supervisor
+
+sudo apt-get -y install supervisor
+
+sudo systemctl enable supervisor
+sudo systemctl start supervisor
+
+PostgreSQL Database Setup
+First switch to the postgres user:
+
+sudo su - postgres
+
+Create a database user:
+
+createuser u_boards
+
+Create a new database and set the user as the owner:
+
+createdb django_boards --owner u_boards
+
+Define a strong password for the user:
+
+psql -c "ALTER USER u_boards WITH PASSWORD 'cAZoYWsJbvE7RMgBPzxOCexPRVA'"
+
+
+ubuntu@ip-172-31-11-178:~$ sudo su - postgres
+postgres@ip-172-31-11-178:~$ createuser u_boards
+postgres@ip-172-31-11-178:~$ createdb django_boards --owner u_boards
+postgres@ip-172-31-11-178:~$ psql -c "ALTER USER u_boards WITH PASSWORD 'cAZoYWsJbvE7RMgBPzxOCexPRVA'"
+ALTER ROLE
+postgres@ip-172-31-11-178:~$ psql
+psql (12.16 (Ubuntu 12.16-0ubuntu0.20.04.1))
+Type "help" for help.
+
+postgres=# \l
+                                List of databases
+     Name      |  Owner   | Encoding | Collate |  Ctype  |   Access privileges   
+---------------+----------+----------+---------+---------+-----------------------
+ django_boards | u_boards | UTF8     | C.UTF-8 | C.UTF-8 | 
+ postgres      | postgres | UTF8     | C.UTF-8 | C.UTF-8 | 
+ template0     | postgres | UTF8     | C.UTF-8 | C.UTF-8 | =c/postgres          +
+               |          |          |         |         | postgres=CTc/postgres
+ template1     | postgres | UTF8     | C.UTF-8 | C.UTF-8 | =c/postgres          +
+               |          |          |         |         | postgres=CTc/postgres
+(4 rows)
+
+
+Django Project Setup
+
+..... Our project files are already in place...
+
+ubuntu@ip-172-31-11-178:~$ cd basedir
+ubuntu@ip-172-31-11-178:~/basedir$ source venv/bin/activate
+(venv) ubuntu@ip-172-31-11-178:~/basedir$ 
+
+
+pip install gunicorn
+pip install psycopg2
+
+(venv) ubuntu@ip-172-31-11-178:~/basedir$ pip install psycopg2-binary
+Collecting psycopg2-binary
+  Downloading psycopg2_binary-2.9.9-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.0 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.0/3.0 MB 61.6 MB/s eta 0:00:00
+Installing collected packages: psycopg2-binary
+Successfully installed psycopg2-binary-2.9.9
+
+Stopped here...
+To be continued next time...
+
+
+
