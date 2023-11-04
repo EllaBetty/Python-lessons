@@ -1,0 +1,322 @@
+Not Found: /favicon.ico
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/arbiter.py", line 224, in run
+    handler()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/arbiter.py", line 257, in handle_term
+    raise StopIteration
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/app/base.py", line 236, in run
+    super().run()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/arbiter.py", line 227, in run
+    self.halt()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/arbiter.py", line 342, in halt
+    self.stop()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/arbiter.py", line 385, in stop
+    sock.close_sockets(self.LISTENERS, unlink)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/sock.py", line 213, in close_sockets
+    os.unlink(sock_name)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ubuntu/myproject/myproject/gunicorn.sock'
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/arbiter.py", line 224, in run
+    handler()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/arbiter.py", line 257, in handle_term
+    raise StopIteration
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/app/base.py", line 236, in run
+    super().run()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/arbiter.py", line 227, in run
+    self.halt()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/arbiter.py", line 342, in halt
+    self.stop()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/arbiter.py", line 385, in stop
+    sock.close_sockets(self.LISTENERS, unlink)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/gunicorn/sock.py", line 213, in close_sockets
+    os.unlink(sock_name)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ubuntu/myproject/myproject/gunicorn.sock'
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+Not Found: /Core/Skin/Login.aspx
+Not Found: /favicon.ico
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /druid/index.html
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /openapi.json
+Not Found: /favicon.ico
+Not Found: /actuator/health
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /boaform/admin/formLogin
+Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/utils/deprecation.py", line 135, in __call__
+    response = self.process_request(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/http/request.py", line 148, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Bad Request: /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Invalid HTTP_HOST header: 'www.loanlending.org'. You may need to add 'www.loanlending.org' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/utils/deprecation.py", line 135, in __call__
+    response = self.process_request(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/http/request.py", line 148, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'www.loanlending.org'. You may need to add 'www.loanlending.org' to ALLOWED_HOSTS.
+Bad Request: /small-business-working-capital-and-funding
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /hudson
+Not Found: /webui/
+Not Found: /favicon.ico
+Not Found: /geoserver/web/
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /favicon.ico
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /hopfully404
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /portal/redlion
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /favicon.ico
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/utils/deprecation.py", line 135, in __call__
+    response = self.process_request(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/http/request.py", line 148, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Bad Request: /systembc/password.php
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Temporary_Listen_Addresses/
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Forbidden (CSRF cookie not set.): /admin/login/
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/utils/deprecation.py", line 135, in __call__
+    response = self.process_request(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/http/request.py", line 148, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Bad Request: /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /boaform/admin/formLogin
+Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/utils/deprecation.py", line 135, in __call__
+    response = self.process_request(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/http/request.py", line 148, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Bad Request: /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /favicon.ico
+Not Found: /favicon.ico
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.svn/wc.db
+Not Found: /Autodiscover/owa/
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.git/HEAD
+Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/utils/deprecation.py", line 135, in __call__
+    response = self.process_request(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/http/request.py", line 148, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Bad Request: /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.svn/wc.db
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /cluster/list.query
+Not Found: /favicon.ico
+Invalid HTTP_HOST header: 'speed.cloudflare.com'. You may need to add 'speed.cloudflare.com' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/utils/deprecation.py", line 135, in __call__
+    response = self.process_request(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/http/request.py", line 148, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'speed.cloudflare.com'. You may need to add 'speed.cloudflare.com' to ALLOWED_HOSTS.
+Bad Request: /cdn-cgi/trace
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /cgi-bin/index2.asp
+Invalid HTTP_HOST header: 'speed.cloudflare.com'. You may need to add 'speed.cloudflare.com' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/utils/deprecation.py", line 135, in __call__
+    response = self.process_request(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/http/request.py", line 148, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'speed.cloudflare.com'. You may need to add 'speed.cloudflare.com' to ALLOWED_HOSTS.
+Bad Request: /cdn-cgi/trace
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /login.html
+Not Found: /web
+Invalid HTTP_HOST header: 'ec2-3-68-85-218.eu-central-1.compute.amazonaws.com'. You may need to add 'ec2-3-68-85-218.eu-central-1.compute.amazonaws.com' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/utils/deprecation.py", line 135, in __call__
+    response = self.process_request(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/http/request.py", line 148, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: 'ec2-3-68-85-218.eu-central-1.compute.amazonaws.com'. You may need to add 'ec2-3-68-85-218.eu-central-1.compute.amazonaws.com' to ALLOWED_HOSTS.
+Bad Request: /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /Core/Skin/Login.aspx
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Traceback (most recent call last):
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/utils/deprecation.py", line 135, in __call__
+    response = self.process_request(request)
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+  File "/home/ubuntu/myproject/myproject/venv/lib/python3.8/site-packages/django/http/request.py", line 148, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '/home/ubuntu/myproject/myproject/run/gunicorn.sock:'. The domain name provided is not valid according to RFC 1034/1035.
+Bad Request: /
+Not Found: /.env
+Forbidden (CSRF cookie not set.): /
+Not Found: /webui/
+Not Found: /favicon.ico
+Not Found: /geoserver/web/
+Not Found: /favicon.ico
